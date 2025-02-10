@@ -1,20 +1,79 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './app/Home';
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import AdPost from './screens/AdPost';
+// import VehicleRentForm from './Forms/VehicleRentForm';
+// import Accommodation from './Forms/AccommodationForm';
+// import TourGuidesForm from './Forms/TourGuidesForm';
+// import AdventureForm from './Forms/AdventureForm';
+// import RestaurantsForm from './Forms/RestaurantsForm';
+// import Profile from './components/Profile';
+// import AddLocation from './components/AddLocation';
+// import Admin from './app/Admin';
+// import ChatRoomListScreen from './components/ChatRoomList';
+// import SellerChatScreen from './screens/SellerChatScreen';
+// import EditScreen from './screens/EditScreen';
+
+
+
+export type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  Register: undefined;
+  AdPost: undefined;
+  AccommodationForm: undefined;
+  RestaurantsForm: undefined;
+  TourGuidesForm: undefined;
+  AdventureForm: undefined;
+  Profile: undefined;
+  VehicleRentForm: { location?: string };
+  LocationInput: undefined;
+  AddLocation: undefined;
+  Admin: undefined;
+  ChatRoomListScreen: undefined;
+  SellerChatScreen: { chatRoomId: string, buyerName: string };
+  EditScreen: { adData: any };
+};
+
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}  />
+          <Stack.Screen name="Login" component={LoginScreen}  />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          {/* <Stack.Screen name="Profile" component={Profile} /> */}
+          <Stack.Screen name="AdPost" component={AdPost} options={{ headerShown: false }} />
+          {/* <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }}/> */}
+          {/* <Stack.Screen name="AccommodationForm" component={Accommodation} /> */}
+          {/* <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} /> */}
+          {/* <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} /> */}
+          {/* <Stack.Screen name="AdventureForm" component={AdventureForm} /> */}
+          {/* <Stack.Screen name="AddLocation" component={AddLocation}/> */}
+          {/* <Stack.Screen name="Admin" component={Admin}/> */}
+          {/* <Stack.Screen
+            name="ChatRoomListScreen"
+            component={ChatRoomListScreen}
+            options={{ title: "Your Chats" }}
+          /> */}
+          {/* <Stack.Screen
+            name="SellerChatScreen"
+            component={SellerChatScreen}
+            options={{ title: "Chat" }}
+          /> */}
+          {/* <Stack.Screen name="EditScreen" component={EditScreen} /> */}
+
+          {/* <Stack.Screen name="LocationInput" component={LocationInput} options={{ title: "Select Location" }} /> */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
