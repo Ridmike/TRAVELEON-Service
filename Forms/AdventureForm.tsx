@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from "react-native";
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform,} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 // import ImageInput from "../components/ImageInput";
 import * as Location from "expo-location";
@@ -10,30 +10,30 @@ import { auth } from "../firebaseConfig";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
 
-type AccommodationFormProps = NativeStackScreenProps<RootStackParamList, 'AccommodationForm'>;
+type AdventureFormFormProps = NativeStackScreenProps<RootStackParamList, 'AdventureForm'>;
 
-const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => {
-  const [accommodationType, setAccommodationType] = useState("Hotel");
+const AdventureForm: React.FC<AdventureFormFormProps> = ({ navigation }) => {
+  const [adventureType, setAdventureType] = useState("Hiking");
   const [name, setName] = useState("");
   const [contactNo, setContactNo] = useState("");
   const [location, setLocation] = useState("");
-  const [pricePerNight, setPricePerNight] = useState("");
+  const [pricePerPerson, setPricePerPerson] = useState("");
   const [currentAddress, setCurrentAddress] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchLocation = async () => {
       if (Platform.OS === "android" && !Device.isDevice) {
-        setErrorMsg(
-          "Oops, this will not work on an Android Emulator. Try it on a device!"
+        Alert.alert(
+          "Error",
+          "Location services are not supported on Android Emulators."
         );
         return;
       }
 
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied.");
+        Alert.alert("Error", "Permission to access location was denied.");
         return;
       }
 
@@ -52,28 +52,19 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
           }, ${city || district || "Unknown City"}`;
           setCurrentAddress(formattedAddress);
         } else {
-          setErrorMsg("Could not fetch the address.");
+          Alert.alert("Error", "Unable to fetch address.");
         }
       } catch (error) {
-        setErrorMsg("An error occurred while fetching the location.");
-        console.error(error);
+        Alert.alert("Error", "An error occurred while fetching the location.");
       }
     };
 
     fetchLocation();
   }, []);
 
-  const handleConfirmLocation = () => {
-    if (currentAddress) {
-      setLocation(currentAddress);
-    } else {
-      Alert.alert("Error", "No location available to confirm.");
-    }
-  };
-
   const validateForm = (): string | null => {
     const contactNoPattern = /^\+94(\d{9}|(\s\d{3}\s\d{3}\s\d{3}))$/; // Matches +94XXXXXXXXX or +94 XXX XXX XXX
-    const pricePattern = /^\d+$/; // Ensures price is a whole number
+    const pricePattern = /^\d+$/; // Ensures price is numeric
 
     if (name.trim().length < 3) {
       return "Name must include a minimum of three characters.";
@@ -87,8 +78,8 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
       return "Location cannot be empty.";
     }
 
-    if (!pricePerNight.trim().match(pricePattern)) {
-      return "Price per night must be a whole number (no cents allowed).";
+    if (!pricePerPerson.trim().match(pricePattern)) {
+      return "Price per person must be a numeric value.";
     }
 
     if (images.length === 0) {
@@ -98,66 +89,73 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
     return null; // No validation errors
   };
 
+  const handleConfirmLocation = () => {
+    if (currentAddress) {
+      setLocation(currentAddress);
+    } else {
+      Alert.alert("Error", "No location available to confirm.");
+    }
+  };
+
   const handleSubmit = async () => {
     const validationError = validateForm();
     if (validationError) {
       Alert.alert("Validation Error", validationError);
       return;
     }
-  
+
     const currentUser = auth.currentUser; // Get the current user
     if (!currentUser) {
       Alert.alert("Error", "You must be logged in to submit accommodation data.");
       return;
     }
-  
+
     try {
-      const accommodationCollectionRef = collection(db, "accommodations");
-      await addDoc(accommodationCollectionRef, {
-        uid: currentUser.uid, // Include user's UID
-        accommodationType,
+      const adventureCollectionRef = collection(db, "adventures");
+      await addDoc(adventureCollectionRef, {
+        uid: currentUser.uid,
+        adventureType,
         name,
         contactNo,
         location,
-        pricePerNight,
-        images, // Uploaded image URLs
+        pricePerPerson,
+        images,
         timestamp: new Date(),
       });
-  
-      Alert.alert("Success", "Accommodation data submitted successfully!");
-  
+
+      Alert.alert("Success", "Adventure data submitted successfully!");
+
       // Reset form fields
-      setAccommodationType("Hotel");
+      setAdventureType("Hiking");
       setName("");
       setContactNo("");
       setLocation("");
-      setPricePerNight("");
+      setPricePerPerson("");
       setImages([]);
 
       navigation.replace("Home");
+
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "An error occurred while submitting the data.");
     }
   };
-  
-  
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Accommodation Form</Text>
+        <Text style={styles.title}>Adventure Form</Text>
         <View style={styles.formContainer}>
-          <Text style={styles.label}>Accommodation Type</Text>
+          <Text style={styles.label}>Adventure Type</Text>
           <View style={styles.dropdownContainer}>
             <Picker
-              selectedValue={accommodationType}
-              onValueChange={(itemValue) => setAccommodationType(itemValue)}
+              selectedValue={adventureType}
+              onValueChange={(itemValue) => setAdventureType(itemValue)}
             >
-              <Picker.Item label="Hotel" value="Hotel" />
-              <Picker.Item label="Villas" value="Villas" />
-              <Picker.Item label="Home Stays" value="Home Stays" />
-              <Picker.Item label="Ayurvedic Spa" value="Ayurvedic Spa" />
+              <Picker.Item label="Hiking" value="Hiking" />
+              <Picker.Item label="Air Adventures" value="Air Adventures" />
+              <Picker.Item label="Diving" value="Diving" />
+              <Picker.Item label="Safari" value="Safari" />
             </Picker>
           </View>
 
@@ -190,13 +188,13 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
             <Text style={styles.locationButtonText}>Select Location</Text>
           </TouchableOpacity>
 
-          <Text style={styles.label}>Price Per Night</Text>
+          <Text style={styles.label}>Price Per Person</Text>
           <TextInput
             style={styles.input}
             placeholder="Rs XXXX"
             keyboardType="numeric"
-            value={pricePerNight}
-            onChangeText={setPricePerNight}
+            value={pricePerPerson}
+            onChangeText={setPricePerPerson}
           />
 
           <Text style={styles.label}>Upload Images</Text>
@@ -211,7 +209,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
   );
 };
 
-export default AccommodationForm;
+export default AdventureForm;
 
 const styles = StyleSheet.create({
   scrollContainer: {
