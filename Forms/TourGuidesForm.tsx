@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-// import ImageInput from "../components/ImageInput";
+import ImageInput from "../components/ImageInput";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -147,7 +147,7 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
 
           {/* Image Input */}
           <Text style={styles.label}>Upload Images</Text>
-          {/* <ImageInput onImagesChange={(uris) => setImages(uris)} /> */}
+          <ImageInput onImagesChange={(uris) => setImages(uris)} />
 
           {/* Submit Button */}
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform,} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-// import ImageInput from "../components/ImageInput";
+import ImageInput from "../components/ImageInput";
 import * as Location from "expo-location";
 import * as Device from "expo-device";
 import { collection, addDoc } from "firebase/firestore";
@@ -198,7 +198,7 @@ const AdventureForm: React.FC<AdventureFormFormProps> = ({ navigation }) => {
           />
 
           <Text style={styles.label}>Upload Images</Text>
-          {/* <ImageInput onImagesChange={(uris) => setImages(uris)} /> */}
+          <ImageInput onImagesChange={(uris) => setImages(uris)} />
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>Submit</Text>

@@ -5,7 +5,7 @@ import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import ImageInput from "../components/ImageInput"; 
+import ImageInput from "../components/ImageInput"; 
 import { RootStackParamList } from "../App";
 import { collection, addDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
@@ -275,7 +275,7 @@ const VehicleRentForm: React.FC<VehicleRentFormProp> = ({ navigation }) => {
           {/* Images */}
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Vehicle Images</Text>
-            {/* <ImageInput onImagesChange={(uris) => setImages(uris)} /> */}
+            <ImageInput onImagesChange={(uris) => setImages(uris)} />
             <Text style={styles.helperText}>
               <Ionicons name="information-circle-outline" size={14} color="#666666" />
               {" "}Upload at least one image of your vehicle

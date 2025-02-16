@@ -6,12 +6,12 @@ import HomeScreen from './app/Home';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import AdPost from './screens/AdPost';
-// import VehicleRentForm from './Forms/VehicleRentForm';
-// import Accommodation from './Forms/AccommodationForm';
-// import TourGuidesForm from './Forms/TourGuidesForm';
-// import AdventureForm from './Forms/AdventureForm';
-// import RestaurantsForm from './Forms/RestaurantsForm';
-// import Profile from './components/Profile';
+import VehicleRentForm from './Forms/VehicleRentForm';
+import Accommodation from './Forms/AccommodationForm';
+import TourGuidesForm from './Forms/TourGuidesForm';
+import AdventureForm from './Forms/AdventureForm';
+import RestaurantsForm from './Forms/RestaurantsForm';
+import Profile from './components/Profile';
 // import AddLocation from './components/AddLocation';
 // import Admin from './app/Admin';
 // import ChatRoomListScreen from './components/ChatRoomList';
@@ -52,11 +52,11 @@ export default function App() {
           <Stack.Screen name="Register" component={RegisterScreen} />
           {/* <Stack.Screen name="Profile" component={Profile} /> */}
           <Stack.Screen name="AdPost" component={AdPost} options={{ headerShown: false }} />
-          {/* <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }}/> */}
-          {/* <Stack.Screen name="AccommodationForm" component={Accommodation} /> */}
-          {/* <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} /> */}
-          {/* <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} /> */}
-          {/* <Stack.Screen name="AdventureForm" component={AdventureForm} /> */}
+          <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }}/>
+          <Stack.Screen name="AccommodationForm" component={Accommodation} />
+          <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} />
+          <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} />
+          <Stack.Screen name="AdventureForm" component={AdventureForm} />
           {/* <Stack.Screen name="AddLocation" component={AddLocation}/> */}
           {/* <Stack.Screen name="Admin" component={Admin}/> */}
           {/* <Stack.Screen
