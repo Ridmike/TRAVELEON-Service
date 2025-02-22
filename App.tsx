@@ -14,9 +14,9 @@ import RestaurantsForm from './Forms/RestaurantsForm';
 import Profile from './components/Profile';
 // import AddLocation from './components/AddLocation';
 // import Admin from './app/Admin';
-// import ChatRoomListScreen from './components/ChatRoomList';
-// import SellerChatScreen from './screens/SellerChatScreen';
-// import EditScreen from './screens/EditScreen';
+import ChatRoomListScreen from './components/ChatRoomList';
+import SellerChatScreen from './screens/SellerChatScreen';
+import EditScreen from './screens/EditScreen';
 
 
 
@@ -50,7 +50,7 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}  />
           <Stack.Screen name="Login" component={LoginScreen}  />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          {/* <Stack.Screen name="Profile" component={Profile} /> */}
+          <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="AdPost" component={AdPost} options={{ headerShown: false }} />
           <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }}/>
           <Stack.Screen name="AccommodationForm" component={Accommodation} />
@@ -59,17 +59,17 @@ export default function App() {
           <Stack.Screen name="AdventureForm" component={AdventureForm} />
           {/* <Stack.Screen name="AddLocation" component={AddLocation}/> */}
           {/* <Stack.Screen name="Admin" component={Admin}/> */}
-          {/* <Stack.Screen
+          <Stack.Screen
             name="ChatRoomListScreen"
             component={ChatRoomListScreen}
             options={{ title: "Your Chats" }}
-          /> */}
-          {/* <Stack.Screen
+          />
+          <Stack.Screen
             name="SellerChatScreen"
             component={SellerChatScreen}
             options={{ title: "Chat" }}
-          /> */}
-          {/* <Stack.Screen name="EditScreen" component={EditScreen} /> */}
+          />
+          <Stack.Screen name="EditScreen" component={EditScreen} />
 
           {/* <Stack.Screen name="LocationInput" component={LocationInput} options={{ title: "Select Location" }} /> */}
         </Stack.Navigator>
