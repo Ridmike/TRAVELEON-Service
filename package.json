@@ -25,6 +25,7 @@
     "react-dom": "^18.3.1",
     "react-native": "0.76.9",
     "react-native-gesture-handler": "^2.25.0",
+    "react-native-maps": "^1.22.6",
     "react-native-paper": "^5.13.5",
     "react-native-reanimated": "^3.17.5",
     "react-native-safe-area-context": "^5.4.0",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~18.3.12",
+    "@types/react-native-maps": "^0.24.1",
     "typescript": "^5.3.3"
   },
   "private": true

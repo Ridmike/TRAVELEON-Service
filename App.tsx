@@ -12,8 +12,8 @@ import TourGuidesForm from './Forms/TourGuidesForm';
 import AdventureForm from './Forms/AdventureForm';
 import RestaurantsForm from './Forms/RestaurantsForm';
 import Profile from './components/Profile';
-// import AddLocation from './components/AddLocation';
-// import Admin from './app/Admin';
+import AddLocation from './components/AddLocation';
+import Admin from './app/Admin';
 import ChatRoomListScreen from './components/ChatRoomList';
 import SellerChatScreen from './screens/SellerChatScreen';
 import EditScreen from './screens/EditScreen';
@@ -57,8 +57,8 @@ export default function App() {
           <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} />
           <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} />
           <Stack.Screen name="AdventureForm" component={AdventureForm} />
-          {/* <Stack.Screen name="AddLocation" component={AddLocation}/> */}
-          {/* <Stack.Screen name="Admin" component={Admin}/> */}
+          <Stack.Screen name="AddLocation" component={AddLocation}/>
+          <Stack.Screen name="Admin" component={Admin}/>
           <Stack.Screen
             name="ChatRoomListScreen"
             component={ChatRoomListScreen}
@@ -70,8 +70,6 @@ export default function App() {
             options={{ title: "Chat" }}
           />
           <Stack.Screen name="EditScreen" component={EditScreen} />
-
-          {/* <Stack.Screen name="LocationInput" component={LocationInput} options={{ title: "Select Location" }} /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
