@@ -17,6 +17,7 @@ import Admin from './app/Admin';
 import ChatRoomListScreen from './components/ChatRoomList';
 import SellerChatScreen from './screens/SellerChatScreen';
 import EditScreen from './screens/EditScreen';
+import ForgotPasswordScreen from './screens/ForgotPassword';
 
 
 
@@ -37,6 +38,7 @@ export type RootStackParamList = {
   ChatRoomListScreen: undefined;
   SellerChatScreen: { chatRoomId: string, buyerName: string };
   EditScreen: { adData: any };
+  ForgotPassword: undefined;
 };
 
 
@@ -48,17 +50,18 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}  />
-          <Stack.Screen name="Login" component={LoginScreen}  />
-          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="AdPost" component={AdPost} options={{ headerShown: false }} />
-          <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }}/>
-          <Stack.Screen name="AccommodationForm" component={Accommodation} />
-          <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} />
-          <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} />
-          <Stack.Screen name="AdventureForm" component={AdventureForm} />
+          <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }} />
+          <Stack.Screen name="AccommodationForm" component={Accommodation} options={{ headerShown: false }} />
+          <Stack.Screen name="RestaurantsForm" component={RestaurantsForm} options={{ headerShown: false }} />
+          <Stack.Screen name="TourGuidesForm" component={TourGuidesForm} options={{ headerShown: false }} />
+          <Stack.Screen name="AdventureForm" component={AdventureForm} options={{ headerShown: false }} />
           <Stack.Screen name="AddLocation" component={AddLocation}/>
           <Stack.Screen name="Admin" component={Admin}/>
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
           <Stack.Screen
             name="ChatRoomListScreen"
             component={ChatRoomListScreen}

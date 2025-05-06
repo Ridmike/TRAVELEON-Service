@@ -5,10 +5,10 @@ import ImageInput from "../components/ImageInput";
 import * as Location from "expo-location";
 import * as Device from "expo-device";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { auth } from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import { Ionicons } from '@expo/vector-icons';
 
 type AccommodationFormProps = NativeStackScreenProps<RootStackParamList, 'AccommodationForm'>;
 
@@ -25,9 +25,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
   useEffect(() => {
     const fetchLocation = async () => {
       if (Platform.OS === "android" && !Device.isDevice) {
-        setErrorMsg(
-          "Oops, this will not work on an Android Emulator. Try it on a device!"
-        );
+        setErrorMsg("Oops, this will not work on an Android Emulator. Try it on a device!");
         return;
       }
 
@@ -42,9 +40,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
           accuracy: Location.Accuracy.High,
         });
 
-        let reverseGeocode = await Location.reverseGeocodeAsync(
-          location.coords
-        );
+        let reverseGeocode = await Location.reverseGeocodeAsync(location.coords);
         if (reverseGeocode.length > 0) {
           const { street, subregion, city, district } = reverseGeocode[0];
           const formattedAddress = `${street || "Unknown Street"}, ${
@@ -140,157 +136,317 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
       Alert.alert("Error", "An error occurred while submitting the data.");
     }
   };
-  
-  
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Accommodation Form</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Accommodation</Text>
+        <Text style={styles.subtitle}>List your property for travelers</Text>
+      </View>
+      
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
-          <Text style={styles.label}>Accommodation Type</Text>
-          <View style={styles.dropdownContainer}>
-            <Picker
-              selectedValue={accommodationType}
-              onValueChange={(itemValue) => setAccommodationType(itemValue)}
-            >
-              <Picker.Item label="Hotel" value="Hotel" />
-              <Picker.Item label="Villas" value="Villas" />
-              <Picker.Item label="Home Stays" value="Home Stays" />
-              <Picker.Item label="Ayurvedic Spa" value="Ayurvedic Spa" />
-            </Picker>
+          {/* Form Sections */}
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Basic Information</Text>
+            
+            {/* Accommodation Type */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="home-outline" size={18} color="#24BAEC" />
+                {" "}Accommodation Type
+              </Text>
+              <View style={styles.dropdownContainer}>
+                <Picker
+                  selectedValue={accommodationType}
+                  onValueChange={(itemValue) => setAccommodationType(itemValue)}
+                  mode="dropdown"
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Hotel" value="Hotel" />
+                  <Picker.Item label="Villas" value="Villas" />
+                  <Picker.Item label="Home Stays" value="Home Stays" />
+                  <Picker.Item label="Ayurvedic Spa" value="Ayurvedic Spa" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* Name */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="business-outline" size={18} color="#24BAEC" />
+                {" "}Property Name
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter property name"
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="#999"
+              />
+            </View>
           </View>
 
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            value={name}
-            onChangeText={setName}
-          />
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Contact Details</Text>
 
-          <Text style={styles.label}>Contact No</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="+94 XX XXX XXX"
-            keyboardType="phone-pad"
-            value={contactNo}
-            onChangeText={setContactNo}
-          />
+            {/* Contact Number */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="call-outline" size={18} color="#24BAEC" />
+                {" "}Contact Number
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="+94 XXX XXX XXX"
+                keyboardType="phone-pad"
+                value={contactNo}
+                onChangeText={setContactNo}
+                placeholderTextColor="#999"
+              />
+            </View>
+          </View>
 
-          <Text style={styles.label}>Location</Text>
-          <TextInput
-            style={styles.inputL}
-            placeholder="Select your location"
-            value={location}
-            editable={false}
-            multiline={true}
-          />
-          <TouchableOpacity style={styles.locationButton} onPress={handleConfirmLocation}>
-            <Text style={styles.locationButtonText}>Select Location</Text>
-          </TouchableOpacity>
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Location & Pricing</Text>
 
-          <Text style={styles.label}>Price Per Night</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Rs XXXX"
-            keyboardType="numeric"
-            value={pricePerNight}
-            onChangeText={setPricePerNight}
-          />
+            {/* Location */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="location-outline" size={18} color="#24BAEC" />
+                {" "}Location
+              </Text>
+              <TextInput
+                style={styles.locationInput}
+                placeholder="Select your location"
+                value={location}
+                editable={false}
+                multiline={true}
+                scrollEnabled={true}
+                placeholderTextColor="#999"
+              />
+              <TouchableOpacity 
+                style={styles.locationButton} 
+                onPress={handleConfirmLocation}
+              >
+                <View style={styles.buttonContent}>
+                  <Ionicons name="navigate" size={20} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Use Current Location</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
 
-          <Text style={styles.label}>Upload Images</Text>
-          <ImageInput onImagesChange={(uris) => setImages(uris)} />
+            {/* Price */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="cash-outline" size={18} color="#24BAEC" />
+                {" "}Price Per Night
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Rs XXXX"
+                keyboardType="numeric"
+                value={pricePerNight}
+                onChangeText={setPricePerNight}
+                placeholderTextColor="#999"
+              />
+            </View>
+          </View>
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+          {/* Images */}
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Property Images</Text>
+            <ImageInput onImagesChange={(uris) => setImages(uris)} />
+            <Text style={styles.helperText}>
+              <Ionicons name="information-circle-outline" size={14} color="#666666" />
+              {" "}Upload at least one image of your property
+            </Text>
+          </View>
+
+          {/* Submit Button */}
+          <TouchableOpacity 
+            style={styles.submitButton}
+            activeOpacity={0.8} 
+            onPress={handleSubmit}
+          >
+            <Text style={styles.submitButtonText}>List Property</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+
+        {errorMsg && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
-export default AccommodationForm;
-
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#00aaff",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
+    backgroundColor: "#FFFFFF",
+  },
+  header: {
+    backgroundColor: "#24BAEC",
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 100,
+    borderBottomRightRadius: 100,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    paddingTop: 50,
   },
   formContainer: {
-    width: "90%",
-    backgroundColor: "white",
-    borderRadius: 15,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+  },
+  formSection: {
+    marginBottom: 25,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000000",
+    marginBottom: 15,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+  fieldContainer: {
+    marginBottom: 18,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#000000",
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
+    height: 52,
+    borderColor: "rgba(36, 186, 236, 0.15)",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  inputL: {
-    borderColor: "#ccc",
+  locationInput: {
+    minHeight: 52,
+    maxHeight: 80,
+    borderColor: "rgba(36, 186, 236, 0.15)",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 10,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   dropdownContainer: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    marginBottom: 15,
+    borderColor: "rgba(36, 186, 236, 0.15)",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    overflow: "hidden",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  submitButton: {
-    backgroundColor: "#00aaff",
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
+  picker: {
+    height: 52,
   },
   locationButton: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: "#24BAEC",
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
+    justifyContent: "center",
   },
-  locationButtonText: {
-    color: "white",
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
     fontWeight: "bold",
+    fontSize: 15,
+    marginLeft: 8,
+  },
+  helperText: {
+    fontSize: 13,
+    color: "#666666",
+    marginTop: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  submitButton: {
+    backgroundColor: "#24BAEC",
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 15,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  submitButtonText: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+  errorContainer: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "rgba(255,59,48,0.9)",
+    borderRadius: 10,
+  },
+  errorText: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 14,
   },
 });
+
+export default AccommodationForm;

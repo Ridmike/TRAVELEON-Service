@@ -9,7 +9,7 @@ import Card from '../components/Card';
 import { auth, db } from '../firebaseConfig';
 import { collection, query, where, getDocs, getDoc, doc, deleteDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-// import ChatRoomListScreen from '../components/ChatRoomList';
+import ChatRoomListScreen from '../components/ChatRoomList';
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -295,7 +295,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       case 'Chat List':
         return (
           <View style={styles(colors).contentContainer}>
-            {/* <ChatRoomListScreen /> */}
+            <ChatRoomListScreen />
           </View>
         );
       case 'You Posts':
@@ -344,7 +344,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <Appbar.Action
           icon="account-circle"
           color={colors.white}
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => {
+            if (isAuthenticated) {
+              navigation.navigate('Profile');
+            } else {
+              navigation.navigate('Login');
+            }
+          }}
         />
       </Appbar.Header>
 
@@ -453,10 +459,10 @@ const styles = (colors: any) => StyleSheet.create({
     color: colors.textPrimary,
   },
   scrollContainer: {
-    paddingTop: 16,
+    // paddingTop: 16,
   },
   bodySecOuter: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   welcomeContainer: {
     marginVertical: 20,
@@ -477,7 +483,6 @@ const styles = (colors: any) => StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: colors.black,
-    marginBottom: 8,
   },
   welcomeSubtext: {
     fontSize: 16,
@@ -592,7 +597,7 @@ const styles = (colors: any) => StyleSheet.create({
     borderTopColor: '#f0f0f0',
   },
   bottomPadding: {
-    height: 100, // Add padding at the bottom to prevent content from being hidden behind the tab bar
+    height: 100, 
   },
   emptyPostsContainer: {
     alignItems: 'center',
@@ -620,7 +625,7 @@ const styles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 14,
     marginBottom: 24,
     paddingHorizontal: 4,
   },
@@ -676,7 +681,6 @@ const styles = (colors: any) => StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: colors.black,
-    marginBottom: 4,
   },
   promptSubtext: {
     fontSize: 14,
@@ -689,7 +693,6 @@ const styles = (colors: any) => StyleSheet.create({
   fixedHeadersContainer: {
     backgroundColor: colors.white,
     paddingHorizontal: 16,
-    paddingTop: 16,
     zIndex: 1,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
