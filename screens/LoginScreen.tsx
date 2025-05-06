@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import { auth } from '../firebaseConfig'; // Import Firebase auth instance
+import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -19,7 +19,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Missing Fields', 'Please enter both email and password.');
+      Alert.alert('Error', 'Please enter both email and password.');
       return;
     }
 
@@ -32,83 +32,85 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert('Success', 'Logged in successfully!', [
-        { text: 'OK', onPress: () => navigation.replace('Home') },
-      ]);
+      navigation.replace('Home');
     } catch (error: any) {
-      let errorMessage = 'Login failed. Please try again.';
-  
+      let errorMessage = 'Something went wrong. Please try again.';
+      
       switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This user account has been disabled.';
+          break;
         case 'auth/user-not-found':
-          errorMessage = 'No account found with this email.';
+          errorMessage = 'No user found with this email.';
           break;
         case 'auth/wrong-password':
-          errorMessage = 'Incorrect password. Please try again.';
+          errorMessage = 'The password is incorrect.';
           break;
-        case 'auth/invalid-email':
-          errorMessage = 'Invalid email address format.';
-          break;
-        case 'auth/too-many-requests':
-          errorMessage = 'Too many failed login attempts. Please try again later.';
-          break;
-        case 'auth/network-request-failed':
-          errorMessage = 'Network error. Please check your internet connection.';
-          break;
-        case 'auth/invalid-credential': 
+        case 'auth/invalid-credential':
           errorMessage = 'Invalid credentials provided. Please try again.';
           break;
-        default:
-          errorMessage = error.message || 'An unexpected error occurred.';
-          break;
       }
-  
-      Alert.alert('Login Error', errorMessage);
+      Alert.alert('Login Failed', errorMessage);
     }
   };
-  
-  
+
   return (
-    <View style={styles.mainouter}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
-
-      <View>
-        <Text>Email</Text>
-        <TextInput
-          style={styles.inputField}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-      </View>
-
-      <View>
-        <Text>Password</Text>
-        <View style={styles.inputPasswoardContainer}>
+    <View style={styles.container}>
+      <ScrollView  showsVerticalScrollIndicator={false}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color="black" />
+        </TouchableOpacity>
+        
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        
+        <Text style={styles.title}>Sign in now</Text>
+        <Text style={styles.subtitle}>Please sign in to continue our app</Text>
+        
+        <View style={styles.inputContainer}>
           <TextInput
-            style={styles.inputpasswoard}
+            style={styles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
             placeholder="Password"
             secureTextEntry={!isPasswordVisible}
             value={password}
             onChangeText={setPassword}
           />
-          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
-            <Ionicons name={isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="grey" />
+          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+            <Ionicons name={isPasswordVisible ? 'eye' : 'eye-off'} size={24} color="gray" />
           </TouchableOpacity>
         </View>
-      </View>
-
-      <Text style={styles.forgotpasswoard}>Forgot password?</Text>
-      <TouchableOpacity style={styles.loginOuter} onPress={handleLogin}>
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
-      <View style={styles.RegOuter}>
-        <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.replace('Register')}>
-          <Text style={styles.RegText}>Register Now</Text>
+        
+        <TouchableOpacity 
+          style={styles.forgotPasswordContainer} 
+          onPress={() => navigation.navigate('ForgotPassword')}
+        >
+          <Text style={styles.forgotPassword}>Forget Password?</Text>
         </TouchableOpacity>
-      </View>
+        
+        <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
+          <Text style={styles.signInText}>Sign In</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.signUpContainer}>
+          <Text style={styles.noAccountText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.replace('Register')}>
+            <Text style={styles.signUpText}>Sign up</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -116,77 +118,88 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  mainouter: {
-    padding: 20,
-    backgroundColor: '#BAD9CE',
-    height: '100%',
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: 'white',
   },
-  mainText: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: '',
-    color: '#0F328D',
-    marginBottom: 50,
+  backButton: {
+    position: 'absolute',
+    top: 30,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f2f2f2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logo: {
-    width: 140,
-    height: 140,
+    width: 200,
+    height: 150,
     alignSelf: 'center',
+    marginTop: 100,
+    marginBottom: 40,
   },
-  inputField: {
-    height: 38,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingLeft: 8,
-    marginBottom: 16,
-    borderRadius: 10,
+  title: {
+    fontSize: 30,
+    textAlign: 'center',
+    marginBottom: 10,
   },
-  inputPasswoardContainer: {
+  subtitle: {
+    fontSize: 16,
+    color: 'gray',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1,
+    backgroundColor: '#f5f5f5',
     borderRadius: 10,
-    paddingLeft: 8,
-    paddingRight: 8,
-    marginBottom: 16,
+    marginBottom: 15,
+    paddingHorizontal: 10,
   },
-  inputpasswoard: {
+  input: {
     flex: 1,
-    height: 38,
+    height: 50,
+    paddingHorizontal: 10,
   },
-  icon: {
-    paddingLeft: 5,
+  eyeIcon: {
+    padding: 10,
   },
-  forgotpasswoard: {
-    textAlign: 'right',
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: 30,
   },
-  loginOuter: {
-    backgroundColor: '#0F328D',
-    height: 30,
-    width: 120,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    borderRadius: 14,
-    marginTop: 80,
-    marginBottom: 12,
+  forgotPassword: {
+    color: '#ff7e1a',
+    fontSize: 16,
   },
-  loginText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 20,
-    textAlign: 'center',
-  },
-  RegOuter: {
-    textAlign: 'center',
-    flexDirection: 'row',
+  signInButton: {
+    backgroundColor: '#29B6F6',
+    height: 55,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    marginBottom: 30,
   },
-  RegText: {
+  signInText: {
+    color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#0F328D',
   },
+  signUpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  noAccountText: {
+    fontSize: 16,
+    color: 'gray',
+  },
+  signUpText: {
+    fontSize: 16,
+    color: '#ff7e1a',
+    fontWeight: 'bold',
+  }
 });

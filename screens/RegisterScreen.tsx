@@ -14,34 +14,28 @@ const RegisterScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState(''); 
-  const [contactNo, setContactNo] = useState(''); 
+  const [passportNumber, setPassportNumber] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [contactNo, setContactNo] = useState('');
+
+  React.useEffect(() => {
+    navigation.setOptions({
+      headerShown: false
+    });
+  }, [navigation]);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
   const handleRegister = async () => {
+    if (!name || !email || !contactNo || !password || !confirmPassword) {
+      Alert.alert('Error', 'All fields are required!');
+      return;
+    }
 
-    if (!name.trim()) {
-      Alert.alert("Invalid Name", "Name is required.");
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert("Invalid Email", "Please enter a valid email address.");
-      return;
-    }
     if (password !== confirmPassword) {
-      Alert.alert("Password Mismatch", "Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      Alert.alert("Weak Password", "Password must be at least 8 characters long.");
+      Alert.alert('Error', 'Passwords do not match!');
       return;
     }
 
@@ -49,200 +43,208 @@ const RegisterScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const usersRef = collection(db, "usersLocal");
-      await setDoc(doc(usersRef, user.uid), {
-        email: user.email,
-        name: name.trim(),
-        password: password,
-        contactNo: contactNo || null, 
-        createdAt: new Date(),
+      await setDoc(doc(collection(db, 'usersForign'), user.uid), {
+        uid: user.uid,
+        name,
+        email,
+        passportNumber,
       });
 
-      Alert.alert("Success", "Registration successful!", [
-        { text: "OK", onPress: () => navigation.replace("Home") },
-      ]);
+      Alert.alert('Success', 'Registration successful!');
+      navigation.replace('Login');
     } catch (error: any) {
-      console.error("Error during registration:", error.code, error.message);
-
-      let errorMessage = "Registration failed. Please try again.";
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          errorMessage = "This email is already in use. Please use a different email.";
-          break;
-        case "auth/invalid-email":
-          errorMessage = "Invalid email address format.";
-          break;
-        case "auth/weak-password":
-          errorMessage = "Password is too weak. Please use a stronger password.";
-          break;
-        default:
-          errorMessage = error.message || "An unexpected error occurred.";
-          break;
-      }
-      Alert.alert("Registration Error", errorMessage);
+      const errorMessage = error?.message || 'An error occurred during registration';
+      Alert.alert('Error', errorMessage);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.mainouter}>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="chevron-back" size={24} color="black" />
+        </TouchableOpacity>
 
-        <View>
-          <Text>Name</Text>
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        
+        <Text style={styles.title}>Sign up now</Text>
+        <Text style={styles.subtitle}>Please fill the details and create account</Text>
+
+        <View style={styles.formContainer}>
           <TextInput
-            style={styles.inputField}
+            style={styles.input}
             placeholder="Enter your name"
             value={name}
             onChangeText={setName}
           />
-        </View>
 
-        <View>
-          <Text>Email</Text>
           <TextInput
-            style={styles.inputField}
+            style={styles.input}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
-        </View>
 
-        <View>
-          <Text>Contact Number</Text>
           <TextInput
-            style={styles.inputField}
+            style={styles.input}
             placeholder="Enter your contact number"
             keyboardType="phone-pad"
             value={contactNo}
             onChangeText={setContactNo}
           />
-        </View>
 
-        <View>
-          <Text>Password</Text>
-          <View style={styles.inputPasswoardContainer}>
+
+          <View style={styles.passwordContainer}>
             <TextInput
-              style={styles.inputpasswoard}
+              style={styles.passwordInput}
               placeholder="Password"
               secureTextEntry={!isPasswordVisible}
               value={password}
               onChangeText={setPassword}
             />
-            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
-              <Ionicons name={isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="grey" />
+            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+              <Ionicons 
+                name={isPasswordVisible ? "eye" : "eye-off"} 
+                size={24} 
+                color="#999" 
+              />
             </TouchableOpacity>
           </View>
 
-          <Text>Confirm Password</Text>
-          <View style={styles.inputPasswoardContainer}>
+          <View style={styles.passwordContainer}>
             <TextInput
-              style={styles.inputpasswoard}
-              placeholder="Confirm Password"
+              style={styles.passwordInput}
+              placeholder="Confirm password"
               secureTextEntry={!isPasswordVisible}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
-            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
-              <Ionicons name={isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="grey" />
+            <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+              <Ionicons 
+                name={isPasswordVisible ? "eye" : "eye-off"} 
+                size={24} 
+                color="#999" 
+              />
             </TouchableOpacity>
           </View>
-        </View>
 
-        <TouchableOpacity style={styles.registerOuter} onPress={handleRegister}>
-          <Text style={styles.registerText}>Register</Text>
-        </TouchableOpacity>
+          <Text style={styles.passwordHint}>Password must be 8 character</Text>
 
-        <View style={styles.LogOuter}>
-          <Text>Have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.replace('Login')}>
-            <Text style={styles.LogText}>Log In</Text>
+          <TouchableOpacity style={styles.signUpButton} onPress={handleRegister}>
+            <Text style={styles.signUpButtonText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+
+        <View style={styles.signInContainer}>
+          <Text style={styles.alreadyAccount}>Already have an account </Text>
+          <TouchableOpacity onPress={() => navigation.replace('Login')}>
+            <Text style={styles.signInText}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 export default RegisterScreen;
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 10,
+  },
+  scrollContainer: {
     flexGrow: 1,
+    paddingBottom: 30,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f2f2f2',
     justifyContent: 'center',
-  },
-  mainouter: {
-    padding: 20,
-    backgroundColor: '#BAD9CE',
-    height: '100%',
-  },
-  mainText: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: '',
-    color: '#0E6973',
-    marginBottom: 40,
+    alignItems: 'center',
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 180,
+    height: 180,
     alignSelf: 'center',
+    marginTop: 40,
   },
-  inputField: {
-    height: 38,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    paddingLeft: 8,
-    marginBottom: 16,
-    borderRadius: 10,
+  title: {
+    fontSize: 32,
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#222',
   },
-  inputPasswoardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 8,
-    paddingRight: 8,
-    marginBottom: 16,
+  subtitle: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginBottom: 30,
   },
-  inputpasswoard: {
-    flex: 1,
-    height: 38,
-  },
-  icon: {
-    paddingRight: 5,
-  },
-  registerOuter: {
-    backgroundColor: '#F2BB16',
-    height: 34,
-    width: 130,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    borderRadius: 14,
+  formContainer: {
     marginTop: 20,
-    marginBottom: 12,
   },
-  registerText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 20,
-    textAlign: 'center',
+  input: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
+    fontSize: 16,
   },
-  LogOuter: {
-    textAlign: 'center',
+  passwordContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 16,
+    fontSize: 16,
+  },
+  eyeIcon: {
+    paddingRight: 16,
+  },
+  passwordHint: {
+    color: '#888',
+    marginBottom: 24,
+    marginLeft: 4,
+  },
+  signUpButton: {
+    backgroundColor: '#00ACEB',
+    borderRadius: 30,
+    padding: 16,
     alignItems: 'center',
     marginTop: 10,
   },
-  LogText: {
+  signUpButtonText: {
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#0E6973',
   },
+  signInContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  alreadyAccount: {
+    color: '#666',
+    fontSize: 16,
+  },
+  signInText: {
+    color: '#FF6B00',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
 });

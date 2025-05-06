@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { Ionicons } from '@expo/vector-icons';
 import ImageInput from "../components/ImageInput";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -14,7 +15,7 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
   const [guideType, setGuideType] = useState("Cultural");
   const [name, setName] = useState("");
   const [contactNo, setContactNo] = useState("");
-  const [languages, setLanguages] = useState("");
+  const [description, setDescription] = useState("");
   const [pricePerDay, setPricePerDay] = useState("");
   const [images, setImages] = useState<string[]>([]);
 
@@ -28,11 +29,11 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
     }
 
     if (!contactNo.trim().match(contactNoPattern)) {
-      return "Contact number must follow the format +94XXXXXXXXX or +94 XXX XXX XXX.";
+      return "Contact number must follow the format +94 XXX XXX XXX.";
     }
 
-    if (languages.trim() === "") {
-      return "Languages cannot be empty.";
+    if (description.trim() === "") {
+      return "Description cannot be empty.";
     }
 
     if (!pricePerDay.trim().match(pricePattern)) {
@@ -54,10 +55,10 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
     }
 
     const currentUser = auth.currentUser; // Get the current user
-        if (!currentUser) {
-          Alert.alert("Error", "You must be logged in to submit accommodation data.");
-          return;
-        }
+    if (!currentUser) {
+      Alert.alert("Error", "You must be logged in to submit tour guide data.");
+      return;
+    }
 
     try {
       const tourGuideCollectionRef = collection(db, "tourGuides");
@@ -66,7 +67,7 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
         guideType,
         name,
         contactNo,
-        languages,
+        description,
         pricePerDay,
         images,
         timestamp: new Date(),
@@ -78,7 +79,7 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
       setGuideType("Cultural");
       setName("");
       setContactNo("");
-      setLanguages("");
+      setDescription("");
       setPricePerDay("");
       setImages([]);
 
@@ -90,145 +91,270 @@ const TourGuidesForm: React.FC<TourGuidesFormProps> = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Tour Guide Form</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Tour Guide</Text>
+        <Text style={styles.subtitle}>Register your tour guide services</Text>
+      </View>
+      
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
-          {/* Dropdown for Guide Type */}
-          <Text style={styles.label}>Guide Type</Text>
-          <View style={styles.dropdownContainer}>
-            <Picker
-              selectedValue={guideType}
-              onValueChange={(itemValue) => setGuideType(itemValue)}
-            >
-              <Picker.Item label="English" value="English" />
-              <Picker.Item label="German" value="German" />
-              <Picker.Item label="French" value="French" />
-              <Picker.Item label="Wildlife" value="Wildlife" />
-            </Picker>
+          {/* Form Sections */}
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Basic Information</Text>
+            
+            {/* Guide Type */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="person-outline" size={18} color="#24BAEC" />
+                {" "}Guide Type
+              </Text>
+              <View style={styles.dropdownContainer}>
+                <Picker
+                  selectedValue={guideType}
+                  onValueChange={(itemValue) => setGuideType(itemValue)}
+                  mode="dropdown"
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Cultural" value="Cultural" />
+                  <Picker.Item label="Wildlife" value="Wildlife" />
+                  <Picker.Item label="Adventure" value="Adventure" />
+                  <Picker.Item label="Cuisine" value="Cuisine" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* Name */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="person-circle-outline" size={18} color="#24BAEC" />
+                {" "}Guide Name
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter guide's full name"
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="#999"
+              />
+            </View>
           </View>
 
-          {/* Other Input Fields */}
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter guide's name"
-            value={name}
-            onChangeText={setName}
-          />
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Contact Information</Text>
 
-          <Text style={styles.label}>Contact No</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="+94 XX XXX XXX"
-            keyboardType="phone-pad"
-            value={contactNo}
-            onChangeText={setContactNo}
-          />
+            {/* Contact Number */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="call-outline" size={18} color="#24BAEC" />
+                {" "}Contact Number
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="+94 XXX XXX XXX"
+                keyboardType="phone-pad"
+                value={contactNo}
+                onChangeText={setContactNo}
+                placeholderTextColor="#999"
+              />
+            </View>
+          </View>
 
-          <Text style={styles.label}>Description </Text>
-          <TextInput
-            style={styles.inputDescription}
-            multiline = {true}
-            numberOfLines = {4}
-            placeholder="E.g., Explain type of tours, experience, etc."
-            value={languages}
-            onChangeText={setLanguages}
-          />
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Service Details</Text>
 
-          <Text style={styles.label}>Price Per Day</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Rs XXXX"
-            keyboardType="numeric"
-            value={pricePerDay}
-            onChangeText={setPricePerDay}
-          />
+            {/* Description */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="document-text-outline" size={18} color="#24BAEC" />
+                {" "}Description
+              </Text>
+              <TextInput
+                style={styles.textAreaInput}
+                placeholder="Describe your services, experience, languages spoken, etc."
+                multiline={true}
+                numberOfLines={4}
+                value={description}
+                onChangeText={setDescription}
+                placeholderTextColor="#999"
+              />
+            </View>
 
-          {/* Image Input */}
-          <Text style={styles.label}>Upload Images</Text>
-          <ImageInput onImagesChange={(uris) => setImages(uris)} />
+            {/* Price */}
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>
+                <Ionicons name="cash-outline" size={18} color="#24BAEC" />
+                {" "}Price Per Day
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Rs XXXX"
+                keyboardType="numeric"
+                value={pricePerDay}
+                onChangeText={setPricePerDay}
+                placeholderTextColor="#999"
+              />
+            </View>
+          </View>
+
+          {/* Images */}
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Profile Images</Text>
+            <ImageInput onImagesChange={(uris) => setImages(uris)} />
+            <Text style={styles.helperText}>
+              <Ionicons name="information-circle-outline" size={14} color="#666666" />
+              {" "}Upload at least one professional photo of yourself
+            </Text>
+          </View>
 
           {/* Submit Button */}
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+          <TouchableOpacity 
+            style={styles.submitButton}
+            activeOpacity={0.8} 
+            onPress={handleSubmit}
+          >
+            <Text style={styles.submitButtonText}>Register Tour Guide</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
-export default TourGuidesForm;
-
-
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#00aaff",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
+    backgroundColor: "#FFFFFF",
+  },
+  header: {
+    backgroundColor: "#24BAEC",
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 100,
+    borderBottomRightRadius: 100,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    paddingTop: 50,
   },
   formContainer: {
-    width: "90%",
-    backgroundColor: "white",
-    borderRadius: 15,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+  },
+  formSection: {
+    marginBottom: 25,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000000",
+    marginBottom: 15,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+  fieldContainer: {
+    marginBottom: 18,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#000000",
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
+    height: 52,
+    borderColor: "rgba(36, 186, 236, 0.15)",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  inputDescription: {
-    borderColor: "#ccc",
+  textAreaInput: {
+    minHeight: 120,
+    borderColor: "rgba(36, 186, 236, 0.15)",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: "#FFFFFF",
+    textAlignVertical: "top",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   dropdownContainer: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    marginBottom: 15,
+    borderColor: "rgba(36, 186, 236, 0.15)",
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    overflow: "hidden",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  picker: {
+    height: 52,
+  },
+  helperText: {
+    fontSize: 13,
+    color: "#666666",
+    marginTop: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   submitButton: {
-    backgroundColor: "#00aaff",
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: "#24BAEC",
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
-    marginTop: 20,
+    justifyContent: "center",
+    marginTop: 15,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   submitButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
-    color: "white",
+    color: "#FFFFFF",
   },
 });
+
+export default TourGuidesForm;
