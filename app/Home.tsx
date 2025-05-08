@@ -295,7 +295,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       case 'Chat List':
         return (
           <View style={styles(colors).contentContainer}>
-            <ChatRoomListScreen />
+            <ChatRoomListScreen disableVirtualization={true} />
           </View>
         );
       case 'You Posts':

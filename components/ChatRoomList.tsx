@@ -21,7 +21,11 @@ interface ChatRoom {
   status?: string;
 }
 
-const ChatRoomListScreen: React.FC = () => {
+interface ChatRoomListProps {
+  disableVirtualization?: boolean;
+}
+
+const ChatRoomListScreen: React.FC<ChatRoomListProps> = ({ disableVirtualization = false }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const navigation = useNavigation<NavigationProp>();
   const auth = getAuth();
@@ -131,58 +135,75 @@ const ChatRoomListScreen: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  // Render a chat room item
+  const renderChatRoomItem = (item: ChatRoom) => {
+    return (
+      <View style={styles.chatOuter} key={item.id}>
+        <TouchableOpacity
+          style={styles.chatRoomItem}
+          onPress={() => navigation.navigate("SellerChatScreen", {
+            chatRoomId: item.id,
+            buyerName: item.buyerName
+          })}
+        >
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              {item.avatar ? (
+                <Image source={{ uri: item.avatar }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarPlaceholder}>
+                  {(item.buyerName?.[0] || "?").toUpperCase()}
+                </Text>
+              )}
+            </View>
+            <View style={[styles.statusIndicator, { backgroundColor: getStatusColor(item.status) }]} />
+          </View>
+
+          <View style={styles.contentContainer}>
+            <View style={styles.topRow}>
+              <Text style={styles.buyerName} numberOfLines={1}>
+                {item.buyerName}
+              </Text>
+              <Text style={styles.timestamp}>
+                {formatTime(item.timestamp)}
+              </Text>
+            </View>
+
+            <View style={styles.bottomRow}>
+              <Text style={styles.lastMessage} numberOfLines={1}>
+                {item.status === 'typing' ? 'Typing...' : item.lastMessage || "Start chatting"}
+              </Text>
+              {!item.read && <View style={styles.unreadIndicator} />}
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // Content for not logged in users
+  const renderNotLoggedInContent = () => (
+    <Text style={styles.notLoggedInText}>Please log in to see your chat rooms.</Text>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       {!currentUser ? (
-        <Text style={styles.notLoggedInText}>Please log in to see your chat rooms.</Text>
+        renderNotLoggedInContent()
+      ) : disableVirtualization ? (
+        // Non-virtualized version for when inside a ScrollView
+        <View style={styles.flatScrollContainer}>
+          {chatRooms.map(item => renderChatRoomItem(item))}
+        </View>
       ) : (
+        // Normal FlatList version
         <FlatList
           data={chatRooms}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.chatOuter}>
-              <TouchableOpacity
-                style={styles.chatRoomItem}
-                onPress={() => navigation.navigate("SellerChatScreen", {
-                  chatRoomId: item.id,
-                  buyerName: item.buyerName
-                })}
-              >
-                <View style={styles.avatarContainer}>
-                  <View style={styles.avatar}>
-                    {item.avatar ? (
-                      <Image source={{ uri: item.avatar }} style={styles.avatarImage} />
-                    ) : (
-                      <Text style={styles.avatarPlaceholder}>
-                        {(item.buyerName?.[0] || "?").toUpperCase()}
-                      </Text>
-                    )}
-                  </View>
-                  <View style={[styles.statusIndicator, { backgroundColor: getStatusColor(item.status) }]} />
-                </View>
-
-                <View style={styles.contentContainer}>
-                  <View style={styles.topRow}>
-                    <Text style={styles.buyerName} numberOfLines={1}>
-                      {item.buyerName}
-                    </Text>
-                    <Text style={styles.timestamp}>
-                      {formatTime(item.timestamp)}
-                    </Text>
-                  </View>
-
-                  <View style={styles.bottomRow}>
-                    <Text style={styles.lastMessage} numberOfLines={1}>
-                      {item.status === 'typing' ? 'Typing...' : item.lastMessage || "Start chatting"}
-                    </Text>
-                    {!item.read && <View style={styles.unreadIndicator} />}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
+          renderItem={({ item }) => renderChatRoomItem(item)}
+          contentContainerStyle={styles.flatListContent}
         />
       )}
     </SafeAreaView>
@@ -195,6 +216,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+    height: '100%',
+  },
+  flatScrollContainer: {
+    paddingBottom: 20,
+  },
+  flatListContent: {
+    paddingBottom: 20,
   },
   chatOuter: {
     flexDirection: 'column',
