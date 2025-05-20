@@ -13,8 +13,8 @@ const Admin : React.FC<AdminScreenProps> = ({ navigation }) => {
         <TouchableOpacity style={styles.locationItem} onPress={() => navigation.navigate('AddLocation')} >
           <Text style={styles.textLocation}>Add Locations</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.locationItem} onPress={() => navigation.navigate('AddLocation')} >
-          <Text style={styles.textLocation}>Add Locations</Text>
+        <TouchableOpacity style={styles.locationItem} onPress={() => navigation.navigate('ImageAdd')} >
+          <Text style={styles.textLocation}>Add Images</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     locationItem: {
       padding: 10,
       borderRadius: 10,
-      backgroundColor: "red",
+      backgroundColor: '#29B6F6',
       borderBottomWidth: 1,
       borderBottomColor: "#ddd",
       alignSelf: 'flex-start', 

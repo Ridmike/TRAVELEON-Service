@@ -116,7 +116,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
         contactNo,
         location,
         pricePerNight,
-        images, // Uploaded image URLs
+        images, 
         timestamp: new Date(),
       });
   
@@ -171,7 +171,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
               </View>
             </View>
 
-            {/* Name */}
+            
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>
                 <Ionicons name="business-outline" size={18} color="#24BAEC" />
@@ -190,7 +190,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Contact Details</Text>
 
-            {/* Contact Number */}
+           
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>
                 <Ionicons name="call-outline" size={18} color="#24BAEC" />
@@ -210,7 +210,6 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({ navigation }) => 
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Location & Pricing</Text>
 
-            {/* Location */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>
                 <Ionicons name="location-outline" size={18} color="#24BAEC" />

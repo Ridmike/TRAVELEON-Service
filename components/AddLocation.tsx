@@ -18,12 +18,12 @@ const AddLocation = () => {
   const [type, setType] = useState(locationTypes[0]);
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const [latitude, setLatitude] = useState('7.8731'); // Default Sri Lanka lat
-  const [longitude, setLongitude] = useState('80.7718'); // Default Sri Lanka lng
+  const [latitude, setLatitude] = useState('7.8731'); 
+  const [longitude, setLongitude] = useState('80.7718'); 
 
   // Convert strings to numbers safely
-  const parsedLat = parseFloat(latitude) || 7.8731; // Fallback default
-  const parsedLng = parseFloat(longitude) || 80.7718; // Fallback default
+  const parsedLat = parseFloat(latitude) || 7.8731; 
+  const parsedLng = parseFloat(longitude) || 80.7718; 
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

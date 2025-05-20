@@ -18,7 +18,7 @@ import ChatRoomListScreen from './components/ChatRoomList';
 import SellerChatScreen from './screens/SellerChatScreen';
 import EditScreen from './screens/EditScreen';
 import ForgotPasswordScreen from './screens/ForgotPassword';
-
+import AddImage from './components/AddImage';
 
 
 export type RootStackParamList = {
@@ -39,6 +39,7 @@ export type RootStackParamList = {
   SellerChatScreen: { chatRoomId: string, buyerName: string };
   EditScreen: { adData: any };
   ForgotPassword: undefined;
+  ImageAdd: undefined;
 };
 
 
@@ -73,6 +74,10 @@ export default function App() {
             options={{ title: "Chat" }}
           />
           <Stack.Screen name="EditScreen" component={EditScreen} />
+          <Stack.Screen
+            name="ImageAdd"
+            component={AddImage}
+            options={{ title: "Add Image" }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

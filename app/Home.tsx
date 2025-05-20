@@ -144,6 +144,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles(colors).detailText}>Rs {ad.pricePerNight}/night</Text>
               </View>
             </View>
+            <View style={styles(colors).deleteButtonContainer}>
+              <TouchableOpacity
+                style={styles(colors).deleteButton}
+                onPress={() => handleDelete(ad)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
+                <Text style={styles(colors).deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         );
       case 'restaurants':
@@ -167,12 +176,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <View style={styles(colors).detailsContainer}>
               <View style={styles(colors).detailItem}>
                 <Ionicons name="restaurant-outline" size={20} color={colors.primary} />
-                <Text style={styles(colors).detailText}>{ad.cuisine}</Text>
+                <Text style={styles(colors).detailText}>{ad.restaurantType}</Text>
               </View>
               <View style={styles(colors).detailItem}>
                 <Ionicons name="cash-outline" size={20} color={colors.primary} />
                 <Text style={styles(colors).detailText}>{ad.priceRange}</Text>
               </View>
+            </View>
+            <View style={styles(colors).deleteButtonContainer}>
+              <TouchableOpacity
+                style={styles(colors).deleteButton}
+                onPress={() => handleDelete(ad)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
+                <Text style={styles(colors).deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
             </View>
           </View>
         );
@@ -204,6 +222,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles(colors).detailText}>Rs {ad.pricePerDay}/day</Text>
               </View>
             </View>
+            <View style={styles(colors).deleteButtonContainer}>
+              <TouchableOpacity
+                style={styles(colors).deleteButton}
+                onPress={() => handleDelete(ad)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
+                <Text style={styles(colors).deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         );
       case 'tourGuides':
@@ -234,6 +261,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles(colors).detailText}>Rs {ad.pricePerDay}/day</Text>
               </View>
             </View>
+            <View style={styles(colors).deleteButtonContainer}>
+              <TouchableOpacity
+                style={styles(colors).deleteButton}
+                onPress={() => handleDelete(ad)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
+                <Text style={styles(colors).deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         );
         case 'adventures':
@@ -263,6 +299,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Ionicons name="cash-outline" size={20} color={colors.primary} />
                 <Text style={styles(colors).detailText}>Rs {ad.pricePerPerson}/person</Text>
               </View>
+            </View>
+            <View style={styles(colors).deleteButtonContainer}>
+              <TouchableOpacity
+                style={styles(colors).deleteButton}
+                onPress={() => handleDelete(ad)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.white} />
+                <Text style={styles(colors).deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
             </View>
           </View>
         );
@@ -321,6 +366,40 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         );
       default:
         return <Text style={styles(colors).placeholder}>Select a section to view content</Text>;
+    }
+  };
+
+  // Add this function before the renderAdCard
+  const handleDelete = async (ad: UserAd) => {
+    try {
+      // Show confirmation dialog
+      Alert.alert(
+        "Delete Listing",
+        "Are you sure you want to delete this listing? This action cannot be undone.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              // Delete from Firestore
+              await deleteDoc(doc(db, ad.collectionName, ad.id));
+              
+              // Update local state
+              setUserAds(prevAds => prevAds.filter(item => item.id !== ad.id));
+              
+              // Show success message
+              Alert.alert("Success", "Listing deleted successfully");
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      Alert.alert("Error", "Failed to delete listing. Please try again.");
     }
   };
 
@@ -657,7 +736,7 @@ const styles = (colors: any) => StyleSheet.create({
     fontSize: 14,
   },
   explorationPrompt: {
-    backgroundColor: colors.primary + '08', // Light blue with 8% opacity
+    backgroundColor: colors.primary + '08', 
     borderRadius: 16,
     marginBottom: 24,
     padding: 16,
@@ -700,7 +779,7 @@ const styles = (colors: any) => StyleSheet.create({
   modernCard: {
     backgroundColor: colors.white,
     borderRadius: 16,
-    padding: 16,
+    padding: 10,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -719,7 +798,7 @@ const styles = (colors: any) => StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textPrimary,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   locationContainer: {
     flexDirection: 'row',
@@ -731,7 +810,7 @@ const styles = (colors: any) => StyleSheet.create({
     marginLeft: 4,
   },
   tagContainer: {
-    backgroundColor: colors.primary + '15', // 15% opacity
+    backgroundColor: colors.primary + '15', 
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
@@ -749,14 +828,13 @@ const styles = (colors: any) => StyleSheet.create({
   detailsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 4,
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary + '08', // 8% opacity
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    backgroundColor: colors.primary + '08', 
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 8,
   },
   detailText: {
@@ -767,6 +845,36 @@ const styles = (colors: any) => StyleSheet.create({
   },
   promptIcon: {
     marginRight: 10,
+  },
+  deleteButtonContainer: {
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    paddingTop: 12,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff4444',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  deleteButtonText: {
+    color: colors.white,
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
