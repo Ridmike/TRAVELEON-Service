@@ -1,36 +1,56 @@
 import React, { useEffect, useState, useLayoutEffect } from "react";
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { collection, addDoc, query, orderBy, onSnapshot } from "firebase/firestore";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView, StatusBar } from "react-native";
+import { collection, addDoc, query, orderBy, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { doc, getDoc } from "firebase/firestore";
 import moment from "moment";
+import { Ionicons } from "@expo/vector-icons";
 
 const SellerChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const route = useRoute();
   const navigation = useNavigation();
-  const { chatRoomId, buyerName } = route.params as { chatRoomId: string, buyerName: string };
+  const { chatRoomId, buyerName } = route.params as { chatRoomId: string; buyerName: string };
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      title: `Chat with ${buyerName}`,
-    });
-  }, [navigation, buyerName]);
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "chatRooms", chatRoomId, "messages"),
-      orderBy("createdAt", "asc")
-    );
+    const q = query(collection(db, "chatRooms", chatRoomId, "messages"), orderBy("createdAt", "asc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const loadedMessages: any[] = [];
+      let lastDate: string | null = null;
+
+      snapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        const createdAt = moment(data.createdAt);
+        const dateLabel = createdAt.isSame(moment(), "day")
+          ? "Today"
+          : createdAt.isSame(moment().subtract(1, "day"), "day")
+          ? "Yesterday"
+          : createdAt.format("MMM D, YYYY");
+
+        if (dateLabel !== lastDate) {
+          loadedMessages.push({
+            id: `separator-${createdAt.format("YYYY-MM-DD")}`,
+            type: "separator",
+            dateLabel,
+          });
+          lastDate = dateLabel;
+        }
+
+        loadedMessages.push({
+          id: doc.id,
+          ...data,
+          formattedTime: createdAt.format("h:mm A"),
+          type: "message",
+        });
+      });
+
       setMessages(loadedMessages);
     });
 
@@ -40,143 +60,154 @@ const SellerChatScreen: React.FC = () => {
   const getUserName = async (uid: string) => {
     try {
       const userDoc = await getDoc(doc(db, "usersForign", uid));
-      if (userDoc.exists()) {
-        return userDoc.data()?.name || "Unknown User";
-      }
-      return "Unknown User";
-    } catch (error) {
-      console.error("Error fetching user name:", error);
+      return userDoc.exists() ? userDoc.data()?.name || "Unknown User" : "Unknown User";
+    } catch {
       return "Unknown User";
     }
   };
 
   const sendMessage = async () => {
-    if (newMessage.trim() === "") return;
+    if (!newMessage.trim()) return;
 
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
+    const currentUser = getAuth().currentUser;
     if (!currentUser) return;
 
     const senderName = await getUserName(currentUser.uid);
-
     const messageData = {
       text: newMessage,
       senderId: currentUser.uid,
-      senderName: senderName,
+      senderName,
       createdAt: new Date().toISOString(),
     };
 
     await addDoc(collection(db, "chatRooms", chatRoomId, "messages"), messageData);
-
     setNewMessage("");
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.messageOuter}>
-        <FlatList
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            const isSentByCurrentUser = item.senderId === getAuth().currentUser?.uid;
-            return (
-              <View
-                style={[
-                  styles.messageContainer,
-                  isSentByCurrentUser ? styles.sentMessage : styles.receivedMessage,
-                ]}
-              >
-                <Text style={styles.messageText}>{item.text}</Text>
-                <Text style={styles.timeText}>
-                  {moment(item.createdAt).format("h:mm a")}
-                </Text>
-              </View>
-            );
-          }}
-        />
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#000" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>{buyerName}</Text>
+          <Text style={styles.headerSubtitle}>Active Now</Text>
+        </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message..."
-          value={newMessage}
-          onChangeText={setNewMessage}
-          multiline={true}
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>SEND</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={80}>
+        <View style={styles.messagesContainer}>
+          <FlatList
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => {
+              if (item.type === "separator") {
+                return (
+                  <View style={styles.dateSeparator}>
+                    <Text style={styles.dateSeparatorText}>{item.dateLabel}</Text>
+                  </View>
+                );
+              }
+
+              const isCurrentUser = item.senderId === getAuth().currentUser?.uid;
+              return (
+                <View style={[styles.messageContainer, isCurrentUser ? styles.sentMessage : styles.receivedMessage]}>
+                  <Text style={styles.messageText}>{item.text}</Text>
+                  <View style={styles.timeContainer}>
+                    <Text style={styles.timeText}>{item.formattedTime}</Text>
+                    {isCurrentUser && <Ionicons name="checkmark-done" size={14} color="#34B7F1" style={styles.checkIcon} />}
+                  </View>
+                </View>
+              );
+            }}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={newMessage}
+            onChangeText={(text) => setNewMessage(text)}
+            placeholder="Type your message"
+            multiline={true}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <Ionicons name="send" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 export default SellerChatScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#fff" },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E8E8E8",
   },
-  messageOuter: {
-    flex: 1,
-    padding: 10,
+  backButton: { padding: 5 },
+  headerContent: { flex: 1, marginLeft: 10 },
+  headerTitle: { fontSize: 20, fontWeight: "600" },
+  headerSubtitle: { fontSize: 14, color: "#4CAF50" },
+  messagesContainer: { flex: 1, padding: 10 },
+  dateSeparator: { alignItems: "center", marginVertical: 15 },
+  dateSeparatorText: {
+    backgroundColor: "#F2F2F2",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 15,
+    fontSize: 14,
+    color: "#888",
   },
+  messageContainer: {
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginVertical: 4,
+    maxWidth: "80%",
+  },
+  sentMessage: { alignSelf: "flex-end", backgroundColor: "#E6F7FF" },
+  receivedMessage: { alignSelf: "flex-start", backgroundColor: "#F2F2F2" },
+  messageText: { fontSize: 16, color: "#333" },
+  timeContainer: { flexDirection: "row", alignItems: "center", alignSelf: "flex-end", marginTop: 2 },
+  timeText: { fontSize: 10, color: "#888", marginRight: 2 },
+  checkIcon: { marginLeft: 2 },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderTopWidth: 1,
-    borderColor: "#ccc",
-    padding: 6,
+    borderTopColor: "#E8E8E8",
     backgroundColor: "#fff",
   },
   input: {
     flex: 1,
-    maxHeight: 100,
-    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 25,
+    borderColor: "#E8E8E8",
+    borderRadius: 20,
     paddingHorizontal: 15,
-    marginRight: 10,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
+    paddingVertical: 8,
+    maxHeight: 100,
+    backgroundColor: "#F9F9F9",
   },
   sendButton: {
-    backgroundColor: "#007BFF",
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-  },
-  sendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  messageContainer: {
-    borderRadius: 10,
-    padding: 10,
-    marginVertical: 4,
-    maxWidth: "75%",
-  },
-  sentMessage: {
-    alignSelf: "flex-end",
-    backgroundColor: "#DCF8C6",
-  },
-  receivedMessage: {
-    alignSelf: "flex-start",
-    backgroundColor: "#fff",
-    borderColor: "#ccc",
-    borderWidth: 1,
-  },
-  messageText: {
-    fontSize: 16,
-    color: "#333",
-    paddingBottom: 4,
-  },
-  timeText: {
-    fontSize: 10,
-    color: "#888",
-    alignSelf: "flex-end",
+    backgroundColor: "#00BCD4",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 5,
   },
 });

@@ -53,7 +53,7 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}  />
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Profile" component={Profile} />
+          <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }}/>
           <Stack.Screen name="AdPost" component={AdPost} options={{ headerShown: false }} />
           <Stack.Screen name="VehicleRentForm" component={VehicleRentForm} options={{ headerShown: false }} />
           <Stack.Screen name="AccommodationForm" component={Accommodation} options={{ headerShown: false }} />

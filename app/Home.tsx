@@ -219,7 +219,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               </View>
               <View style={styles(colors).detailItem}>
                 <Ionicons name="cash-outline" size={20} color={colors.primary} />
-                <Text style={styles(colors).detailText}>Rs {ad.pricePerDay}/day</Text>
+                <Text style={styles(colors).detailText}>Rs {ad.price}/day</Text>
               </View>
             </View>
             <View style={styles(colors).deleteButtonContainer}>
@@ -331,10 +331,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     switch (selectedSection) {
       case 'Popular Post':
         return (
+          
           <View style={styles(colors).contentContainer}>
-            <Card title="Getting Started with Facebook Marketing" description="Learn how to create engaging content and grow your audience on Facebook." />
-            <Card title="Effective Strategies" description="Discover strategies to maximize your marketing ROI." />
-            <Card title="Case Studies" description="Explore how brands use Facebook for impactful campaigns." />
+            <Card 
+              title="Showcase Your Services" 
+              description="List your accommodations, restaurants or adventure packages to thousands of potential tourists."
+              icon="storefront-outline" 
+            />
+            <Card 
+              title="Grow Your Local Business" 
+              description="Connect directly with independent travelers seeking authentic Sri Lankan experiences." 
+              icon="trending-up-outline"
+            />
+            <Card 
+              title="Verified Provider Platform" 
+              description="Join our trusted network of service providers and increase your visibility in the tourism market."
+              icon="shield-checkmark-outline" 
+            />
           </View>
         );
       case 'Chat List':
@@ -463,7 +476,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   <Ionicons name="megaphone-outline" size={24} color={colors.primary} />
                 </View>
                 <View style={styles(colors).promptTextContainer}>
-                  <Text style={styles(colors).promptTitle}>Ready to showcase?</Text>
+                  <Text style={styles(colors).promptTitle}>Ready to connect with Traveleon?</Text>
                   <Text style={styles(colors).promptSubtext}>
                     Share your services with thousands of potential customers
                   </Text>

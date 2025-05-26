@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Text, Button, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { Text, Button, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-
-
 const AddImage = () => {
-  
-  const [image, setImage] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
 
   const pickImage = async () => {
+    if (images.length >= 5) {
+      Alert.alert('Limit Reached', 'You can only upload up to 5 images.');
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -19,42 +21,42 @@ const AddImage = () => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImages([...images, result.assets[0].uri]);
     }
   };
 
-  
-
-  const handleSubmit = async() => {
-
+  const handleSubmit = async () => {
     try {
-        const addLocationsRef = collection(db, "images");
-        const newDoc = await addDoc(addLocationsRef, {
-            id: "",
-            image,
-        });
+      const addLocationsRef = collection(db, 'images');
+      const newDoc = await addDoc(addLocationsRef, {
+        id: '',
+        images, // Array of image URIs
+      });
 
-        await updateDoc(doc(db, "images", newDoc.id), { id: newDoc.id });
+      await updateDoc(doc(db, 'images', newDoc.id), { id: newDoc.id });
 
-        Alert.alert("Success", "Location data submitted successfully!");
-
-        setImage(null);
-
+      Alert.alert('Success', 'Images submitted successfully!');
+      setImages([]);
     } catch (error) {
-        Alert.alert("Error", "An error occurred while submitting the data.");
+      Alert.alert('Error', 'An error occurred while submitting the data.');
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>      
-
-      {image && <Image source={{ uri: image }} style={styles.previewImage} />}
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.imagesWrapper}>
+        {images.map((img, index) => (
+          <Image key={index} source={{ uri: img }} style={styles.previewImage} />
+        ))}
+      </View>
 
       <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-        <Text style={styles.imagePickerText}>{image ? "Change Image" : "Pick an Image"}</Text>
+        <Text style={styles.imagePickerText}>
+          {images.length > 0 ? `Add Image (${images.length}/5)` : 'Pick an Image'}
+        </Text>
       </TouchableOpacity>
 
-      <Button title="Submit Location" onPress={handleSubmit} />
+      <Button title="Submit Images" onPress={handleSubmit} />
     </ScrollView>
   );
 };
@@ -64,6 +66,12 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     flexGrow: 1,
+  },
+  imagesWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 15,
   },
   imagePicker: {
     backgroundColor: '#007bff',
@@ -77,10 +85,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   previewImage: {
-    width: '100%',
-    height: 200,
+    width: '48%',
+    height: 150,
     borderRadius: 5,
-    marginBottom: 15,
+    marginBottom: 10,
   },
 });
 
